@@ -14,9 +14,27 @@ using System.Reflection;
 
 namespace AA_WPG
 {
+	struct Command
+	{
+		public string Cmd;
+		public string[] Args;
+		public Command(string line)
+		{
+			var cmdAndArgs = line.Split(' ');
+			Args = new string[cmdAndArgs.Length - 1];
+			for (int i = 1; i < cmdAndArgs.Length; i++)
+				Args[i - 1] = cmdAndArgs[i];
+			Cmd = cmdAndArgs[0];
+		}
+	}
 	class Program
 	{
+		static List<ConsoleCommand> commands;
 		static List<RemoteDataCluster> clustersList;
+		public static T GetCluster<T>() where T : RemoteDataCluster
+		{
+			return clustersList.Find(x => x.GetType() == typeof(T)) as T;
+		}
 		static void Main(string[] args)
 		{
 
@@ -28,40 +46,33 @@ namespace AA_WPG
     			select (Activator.CreateInstance(type) as RemoteDataCluster);
 			clustersList = new List<RemoteDataCluster>(clusters);
 
-			var commands =
+			commands = new List<ConsoleCommand>(
 				from type
 				in Assembly.GetExecutingAssembly().GetTypes()
 					           where type.IsSubclassOf(typeof(ConsoleCommand))
-				select (Activator.CreateInstance(type) as ConsoleCommand);
+				select (Activator.CreateInstance(type) as ConsoleCommand));
 
-			foreach (var cluster in clusters)
+			foreach (var cluster in clustersList)
 				cluster.Init(upd);
 
-			string command = null;
-			while (command != "Exit")
+			string cmdLine = null;
+			while (cmdLine != "Exit")
 			{
-				command = Console.ReadLine();
-				var cmdAndArgs = command.Split(' ');
-				string[] cmdArgs = new string[cmdAndArgs.Length - 1];
-				for (int i = 1; i < cmdAndArgs.Length; i++)
-					cmdArgs[i - 1] = cmdAndArgs[i];
-				
-				var cmd = commands.FirstOrDefault( c => c.GetType().Name == command);
-				if (cmd == null)
+				Console.WriteLine("Enter command, please");
+				cmdLine = Console.ReadLine();
+
+				Command command = new Command(cmdLine);
+				if (command.Cmd == "Run")
 				{
-					if (command != "Exit")
+					var lines = File.ReadAllLines("Data/"+command.Args[0]);
+					foreach (var line in lines)
 					{
-						Console.WriteLine("No such command, try this:");
-						foreach (var cmdType in commands)
-							Console.WriteLine(cmdType.GetType().Name);
+						Command subCommand = new Command(line);
+						ExecuteCommand(subCommand);
 					}
-				
-				
 				}
 				else
-				{
-					cmd.Exectute(cmdArgs);
-				}
+					ExecuteCommand(command);
 			}
 
 			//foreach (var cluster in clusters)
@@ -70,5 +81,26 @@ namespace AA_WPG
 
 
 		}
+
+
+		static void ExecuteCommand(Command command)
+		{
+			var cmd = commands.FirstOrDefault(c => c.GetType().Name == command.Cmd);
+			if (cmd == null)
+			{
+				if (command.Cmd != "Exit")
+				{
+					Console.WriteLine("No such command, try this:");
+					foreach (var cmdType in commands)
+						Console.WriteLine(cmdType.GetType().Name);
+				}
+			}
+			else
+			{
+				cmd.Execute(command.Args);
+			}
+		}
 	}
+
+
 }

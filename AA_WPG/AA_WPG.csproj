@@ -84,14 +84,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GoogleDataUpdater.cs" />
     <Compile Include="RemoteDataCluster.cs" />
-    <Compile Include="ConsoleCommands.cs" />
     <Compile Include="Clusters\Units.cs" />
+    <Compile Include="Commands\ConsoleCommands.cs" />
+    <Compile Include="Commands\GenerateArmy.cs" />
+    <Compile Include="YearPercent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Clusters\" />
+    <Folder Include="Commands\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
