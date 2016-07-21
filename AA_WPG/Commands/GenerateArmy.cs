@@ -12,11 +12,11 @@ namespace AA_WPG
 			public int LowPercent;
 			public int HighPercent;
 			public int Count;
-			public int Lines;
+			public float Lines;
 			public float ResultLines;
 			public override string ToString()
 			{
-				return string.Format("Unit: {0} Lines: {1} Count: {2}", Unit.Name, ResultLines, Count);
+				return string.Format("{0} \r\n  -Потребляет: {1} \r\n  -Численность: {2}", Unit.Name, ResultLines, Count);
 			}
 		}
 		public override void Execute(string[] args)
@@ -106,7 +106,7 @@ namespace AA_WPG
 							percent = airPercent;
 							airPercent = 0;
 						}
-						composition[i].Lines = (int)Math.Floor(((float)percent / 100f)* airLinesCountLimit);
+						composition[i].Lines = ((float)percent / 100f)* airLinesCountLimit;
 						break;
 					case UnitType.Land:
 						if (landPercent >= percent)
@@ -116,7 +116,7 @@ namespace AA_WPG
 							percent = landPercent;
 							landPercent = 0;
 						}
-						composition[i].Lines = (int)Math.Floor(((float)percent / 100f) * armyLinesCountLimit);
+						composition[i].Lines = ((float)percent / 100f) * armyLinesCountLimit;
 						break;
 					case UnitType.Sea:
 						if (seaPercent >= percent)
@@ -127,7 +127,7 @@ namespace AA_WPG
 							seaPercent = 0;
 						}
 
-						composition[i].Lines = (int)Math.Floor(((float)percent / 100f) * seaLinesCountLimit);
+						composition[i].Lines = ((float)percent / 100f) * seaLinesCountLimit;
 						break;
 				}
 
@@ -153,27 +153,34 @@ namespace AA_WPG
 				}
 				composition[i].Count = count;
 				composition[i].ResultLines = count * unitCost;
+				if (count > 0)
 				file.WriteLine(composition[i]);
 			}
 
 			landEquipped = (float) linesCount / (float)landLinesUsed * 100;
-			seaEquipped = (float) seaCount / (float)fleetLinesUsed * 100;
+			if (seaCount != 0)
+
+				seaEquipped = (float)seaCount / (float)fleetLinesUsed * 100;
+			else
+				seaEquipped = 100;
 			var totalManpower = airManpower + landManpower + seaManpower;
 			var totalLimit = airManpowerLimit + landManpowerLimit + seaManpowerLimit;
-
 			float landManpowerPercent = (float)landManpowerLimit / (float)landManpower * 100f;
 			float airManpowerPercent = (float)airManpowerLimit / (float)airManpower * 100f;
 			float seaManpowerPercent = (float)seaManpowerLimit / (float)seaManpower * 100f;
-			file.WriteLine(
-				String.Format("Заводы: {0:##.##} из {7} \r\nВерфи: {1:##.##} из {8} \r\nСнаряжено армии: {2:##.#}% \r\nСнаряжено флота: {3:##.#}% \r\nНужно людей: {9} \r\nЕсть людей: {10} \r\nЛюдей в армии: {4:##}% \r\nЛюдей в авиации: {5:##}% \r\nЛюдей во флоте: {6:##}%", 
-			                                landLinesUsed, 
-			                                fleetLinesUsed,
-			                               	landEquipped,
-			                                seaEquipped,
-			                                landManpowerPercent,
-			                                airManpowerPercent,
-			                                seaManpowerPercent,
-				              linesCount, seaCount, totalManpower, totalLimit));
+			var factoriesData = String.Format("Занято линий: {0:##.##} из {1} \r\nЗанято верфей: {2:#0.##} из {3}", landLinesUsed, linesCount, fleetLinesUsed, seaCount);
+			var globalEquipmentData = String.Format("Снаряжено армии: {0:##.#}% \r\nСнаряжено флота: {1:##.#}%", Math.Min(landEquipped, 100), Math.Min(seaEquipped, 100));
+			var globalArmyManpowerData = String.Format("Нужно людей в армии: {0} \r\nВ наличии: {1} \r\nСостав: {2:##.#}%", landManpower, landManpowerLimit, Math.Min(landManpowerPercent, 100));
+			var globalAirManpowerData = String.Format("Нужно людей в авиации: {0} \r\nВ наличии: {1} \r\nСостав: {2:##.#}%", airManpower, airManpowerLimit, Math.Min(airManpowerPercent, 100));
+          	var globalSeaManpowerData = String.Format("Нужно людей во флоте: {0} \r\nВ наличии: {1} \r\nСостав: {2:##.#}%", seaManpower, seaManpowerLimit, Math.Min(seaManpowerPercent, 100));
+			var globalManpowerData = String.Format("Нужно людей всего: {0} \r\nВ наличии: {1}", totalManpower, totalLimit);
+			file.WriteLine(factoriesData);
+			file.WriteLine(globalEquipmentData);
+			file.WriteLine(globalArmyManpowerData);
+			file.WriteLine(globalAirManpowerData);
+			if(seaCount > 0)
+			file.WriteLine(globalSeaManpowerData);
+			file.WriteLine(globalManpowerData);
 
 
 
