@@ -76,6 +76,13 @@ namespace AA_WPG
 			ConsumptionCost = consume;
 			ID = id;
 			Name = name;
+			if (Name.Length < 35)
+			{
+				int lessBy = 35 - Name.Length;
+				builder.Clear();
+				builder.Append(Name).Append('_', lessBy);
+				Name = builder.ToString();
+			}
 			Manpower = manpower;
 			HP = hp;
 			Type = type;

@@ -16,7 +16,7 @@ namespace AA_WPG
 			public float ResultLines;
 			public override string ToString()
 			{
-				return string.Format("{0} \r\n  -Потребляет: {1} \r\n  -Численность: {2}", Unit.Name, ResultLines, Count);
+				return string.Format("{0} {1:#0.00} {2}", Unit.Name, ResultLines, Count);
 			}
 		}
 		public override void Execute(string[] args)

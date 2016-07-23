@@ -22,27 +22,31 @@ namespace AA_WPG
 		{
 
 			UserCredential credential;
-			using (var stream =
+
+				using (var stream =
 				new FileStream("C:\\AA\\client_secret_405359896107-cbcdg0ooutsmf06od9061q6fcq4gqjq0.apps.googleusercontent.com.json", FileMode.Open, FileAccess.Read))
-			{
-				string credPath = System.Environment.GetFolderPath(
-					System.Environment.SpecialFolder.Personal);
-				credPath = Path.Combine(credPath, ".credentials/sheets.googleapis.com-dotnet-quickstart.json");
+				{
+					string credPath = System.Environment.GetFolderPath(
+						System.Environment.SpecialFolder.Personal);
+					credPath = Path.Combine(credPath, ".credentials/sheets.googleapis.com-dotnet-quickstart.json");
 
-				credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-					GoogleClientSecrets.Load(stream).Secrets,
-					Scopes,
-					"user",
-					CancellationToken.None,
-					new FileDataStore(credPath, true)).Result;
-				Console.WriteLine("Credential file saved to: " + credPath);
-			}
+					credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+						GoogleClientSecrets.Load(stream).Secrets,
+						Scopes,
+						"user",
+						CancellationToken.None,
+						new FileDataStore(credPath, true)).Result;
+					Console.WriteLine("Credential file saved to: " + credPath);
+				}
 
-			service = new SheetsService(new BaseClientService.Initializer()
-			{
-				HttpClientInitializer = credential,
-				ApplicationName = ApplicationName,
-			});
+				service = new SheetsService(new BaseClientService.Initializer()
+				{
+					HttpClientInitializer = credential,
+					ApplicationName = ApplicationName,
+				});
+
+
+
 
 		}
 
