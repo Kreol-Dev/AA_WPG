@@ -50,7 +50,7 @@ namespace AA_WPG
 			}
 			//foreach (var unit in units)
 			//	Console.WriteLine(unit);
-			Console.WriteLine(units.Count);
+			//Console.WriteLine(units.Count);
 		}
 
 		public override void Upload(GoogleDataUpdater updater)

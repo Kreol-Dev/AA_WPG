@@ -29,16 +29,24 @@ namespace AA_WPG
 	}
 	class Program
 	{
+
+		static GoogleDataUpdater upd = new GoogleDataUpdater();
 		static List<ConsoleCommand> commands;
 		static List<RemoteDataCluster> clustersList;
 		public static T GetCluster<T>() where T : RemoteDataCluster
 		{
-			return clustersList.Find(x => x.GetType() == typeof(T)) as T;
+			var cluster =  clustersList.Find(x => x.GetType() == typeof(T)) as T;
+			if (!cluster.AlreadyInit)
+			{
+				cluster.AlreadyInit = true;
+				cluster.Init(upd);
+			}
+			return cluster;
+
 		}
 		static void Main(string[] args)
 		{
 
-			GoogleDataUpdater upd = new GoogleDataUpdater();
 			var clusters = 
 				from type 
 				in Assembly.GetExecutingAssembly().GetTypes() 
@@ -52,8 +60,7 @@ namespace AA_WPG
 					           where type.IsSubclassOf(typeof(ConsoleCommand))
 				select (Activator.CreateInstance(type) as ConsoleCommand));
 
-			foreach (var cluster in clustersList)
-				cluster.Init(upd);
+				//cluster.Init(upd);
 
 			string cmdLine = null;
 			while (cmdLine != "Exit")

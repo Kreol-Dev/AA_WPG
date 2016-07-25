@@ -88,6 +88,8 @@
     <Compile Include="Commands\ConsoleCommands.cs" />
     <Compile Include="Commands\GenerateArmy.cs" />
     <Compile Include="YearPercent.cs" />
+    <Compile Include="Clusters\States.cs" />
+    <Compile Include="Clusters\Armies.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
