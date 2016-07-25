@@ -90,6 +90,7 @@
     <Compile Include="YearPercent.cs" />
     <Compile Include="Clusters\States.cs" />
     <Compile Include="Clusters\Armies.cs" />
+    <Compile Include="Commands\LoadStates.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
