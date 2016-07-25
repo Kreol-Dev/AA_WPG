@@ -7,6 +7,7 @@ namespace AA_WPG
 	{
 		public override void Init(GoogleDataUpdater updater)
 		{
+            //var armiesData = updater.GetSheetRange("Armies", 'B', 2, 'AC' 26, "1YwwVn7NpUcGyNGOOHquT2_4FHLYxICE3C2YYLm8MeAw");
 			throw new NotImplementedException();
 		}
 
