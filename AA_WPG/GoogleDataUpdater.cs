@@ -51,14 +51,14 @@ namespace AA_WPG
 		}
 
 
-		public IList<IList<Object>> GetSheetRange(string list, char fromCol, int fromRow, char toCol, int toRow, string sheetId)
+		public IList<IList<Object>> GetSheetRange(string list, string fromCol, int fromRow, string toCol, int toRow, string sheetId)
 		{
 			var request = service.Spreadsheets.Values.Get(sheetId, String.Format("{0}!{1}{2}:{3}{4}", list, fromCol, fromRow, toCol, toRow));
 			var values = request.Execute();
 			return values.Values;
 		}
 
-		public void UpdateSheetRange(IList<IList<Object>> values, string list, char fromCol, int fromRow, char toCol, char toRow, string sheetId)
+		public void UpdateSheetRange(IList<IList<Object>> values, string list, string fromCol, int fromRow, string toCol, char toRow, string sheetId)
 		{
 			ValueRange range = new ValueRange();
 			range.Values = values;
