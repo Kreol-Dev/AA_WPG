@@ -5,17 +5,18 @@ namespace AA_WPG
 	{
 		public float BaseStateFactoryTaxPercent;
 		public float BaseInvestements;
-
+		public float BaseTax;
 		public override void Init(GoogleDataUpdater updater)
 		{
 			var statesIDs = updater.GetSheetRange("States", "A", 2, "Z", 3,"1NSBFZxNsfgRmbgaQIj0lYHzUliNOS2bwPxOqs4bj3gM");
 
-			var consumptionTable = updater.GetSheetRange("States", "A", 5, "Z", 8, "1NSBFZxNsfgRmbgaQIj0lYHzUliNOS2bwPxOqs4bj3gM");
+			var consumptionTable = updater.GetSheetRange("States", "B", 5, "Z", 8, "1NSBFZxNsfgRmbgaQIj0lYHzUliNOS2bwPxOqs4bj3gM");
 
 
-			var variablesTable = updater.GetSheetRange("States", "A", 10, "A", 12, "1NSBFZxNsfgRmbgaQIj0lYHzUliNOS2bwPxOqs4bj3gM");
-
-
+			var variablesTable = updater.GetSheetRange("States", "B", 10, "B", 12, "1NSBFZxNsfgRmbgaQIj0lYHzUliNOS2bwPxOqs4bj3gM");
+			BaseStateFactoryTaxPercent = float.Parse(variablesTable[0][0] as string);
+			BaseInvestements = float.Parse(variablesTable[1][0] as string);
+			BaseTax = float.Parse(variablesTable[2][0] as string);
 
 		}
 
