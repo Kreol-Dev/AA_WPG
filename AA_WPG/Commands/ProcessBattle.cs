@@ -51,32 +51,47 @@ namespace AA_WPG
 		}
 
 		enum StepResult { AttackerWon, DefenderWon, EveryoneIsDead, Tie };
-		int savedInitiative1 = 0;
-		int savedInitiative2 = 0;
+		float savedDamage1 = 0;
+		float savedDamage2 = 0;
+		int phase = 0;
 		StepResult SimulateBattle(Frontline front1, Frontline front2, out Frontline attacker, out Frontline defender)
 		{
-			
-			int initiative1 = random.Next(0, front1.Army.Initiative) + savedInitiative1;
-			int initiative2 = random.Next(0, front2.Army.Initiative) + savedInitiative2;
-			savedInitiative1 = 0;
-			savedInitiative2 = 0;
+
+			log.Append("Phase: ").Append(phase++).Append(Environment.NewLine);
+			int initiative1 = random.Next(0, front1.Army.Initiative);
+			int initiative2 = random.Next(0, front2.Army.Initiative);
 			float multiplier = 1;
+
+			float attackerDamage = 0;
+			float defenderDamage = 0;
+				
 			if (initiative1 > initiative2)
 			{
 				attacker = front1;
 				defender = front2;
 				multiplier = (float)initiative2 / (float)initiative1;
+				attackerDamage += savedDamage1;
+				defenderDamage += savedDamage2;
+				log.Append("Attacks: ").Append(front1.ID).Append("Initiative = ").Append(initiative1).Append(Environment.NewLine);
+				log.Append("Defends: ").Append(front2.ID).Append("Initiative = ").Append(initiative2).Append(Environment.NewLine);
 			}
 			else
 			{
 				attacker = front2;
 				defender = front1;
 				multiplier = (float)initiative1 / (float)initiative2;
+
+				attackerDamage += savedDamage2;
+				defenderDamage += savedDamage1;
+				log.Append("Attacks: ").Append(front2.ID).Append("Initiative = ").Append(initiative2).Append(Environment.NewLine);
+				log.Append("Defends: ").Append(front1.ID).Append("Initiative = ").Append(initiative1).Append(Environment.NewLine);
 			}
 			Frontline refAttacker = attacker;
 			Frontline refDefender = defender;
-			float attackerDamage = 0;
-			float defenderDamage = 0;
+
+
+			savedDamage1 = 0;
+			savedDamage2 = 0;
 			for (int i = 0; i < attacker.Units.Length; i++)
 				attacker.Units[i].WasAttacked = false;
 			for (int i = 0; i < defender.Units.Length; i++)
@@ -84,19 +99,48 @@ namespace AA_WPG
 			float attackerYearMod = 1;
 			float defenderYearMod = 1;
 			if(attacker.Army.Year - defender.Army.Year < 0)
-				defenderYearMod = (defender.Army.Year - attacker.Army.Year) * units.TimeAheadModifier;
+				defenderYearMod = 1 + (defender.Army.Year - attacker.Army.Year) * units.TimeAheadModifier;
 			else
-				attackerYearMod = (attacker.Army.Year - defender.Army.Year) * units.TimeAheadModifier;
-			
+				attackerYearMod = 1 + (attacker.Army.Year - defender.Army.Year) * units.TimeAheadModifier;
+			bool damageAttackerAir = false;
+			bool damageAttackerLand = false;
+			bool damageAttackerSea = false;
+			bool damageDefenderAir = false;
+			bool damageDefenderLand = false;
+			bool damageDefenderSea = false;
+			Action<Frontline, UnitType> unitTypeAttack = (front, type) =>
+			{
+				if (front == refAttacker)
+					switch (type)
+					{
+						case UnitType.Air: damageAttackerAir = true; break;
+						case UnitType.Land: damageAttackerLand = true; break;
+						case UnitType.Sea: damageAttackerSea = true; break;
+					}
+				else
+					switch (type)
+					{
+						case UnitType.Air: damageDefenderAir = true; break;
+						case UnitType.Land: damageDefenderLand = true; break;
+						case UnitType.Sea: damageDefenderSea = true; break;
+					}
+
+			};
 			for (int i = 0; i < attacker.Units.Length; i++)
 			{
 				var frontUnit = attacker.Units[i];
 				for (int j = 0; j < frontUnit.Count; j++)
 				{
+					log.Append("Unit ").Append(frontUnit.Unit.Name).Append(" attacks ");
 					if (random.NextDouble() < frontUnit.Unit.Organization)
 					{
+						log.Append("with max efficiency he chooses ");
 						//Choose max efficiency
 						float maxDelta = 0;
+						float attack = 0;
+						float defence = 0;
+						int chosenId = 0;
+						bool crit = random.Next(0, 15) == 0;
 						for (int k = 0; k < defender.Units.Length; k++)
 						{
 							if (defender.Units[k].Count == 0)
@@ -107,6 +151,7 @@ namespace AA_WPG
 								float attackEfficiency = frontUnit.Unit.Effectiveness[units.units[defender.Units[targetId].Unit.Index]];
 								attackEfficiency *= attacker.Army.Weapons;
 								attackEfficiency *= attackerYearMod;
+								//Console.WriteLine(attackEfficiency);
 								switch (defender.Units[targetId].Unit.Type)
 								{
 									case UnitType.Air:
@@ -119,7 +164,7 @@ namespace AA_WPG
 										attackEfficiency *= attacker.Army.Seamen;
 										break;
 								}
-								defender.Units[targetId].WasAttacked = true;
+								//defender.Units[targetId].WasAttacked = true;
 								float defenceEfficiency = 0;
 								try
 								{
@@ -139,21 +184,50 @@ namespace AA_WPG
 											defenceEfficiency *= defender.Army.Seamen;
 											break;
 									}
-									attacker.Units[j].WasAttacked = true;
+
 								}
 								catch { }
-								var localDelta = attackEfficiency - defenceEfficiency;
-								if (localDelta > maxDelta)
-									maxDelta = localDelta;
+								if (crit)
+								{
+									var localDelta = attackEfficiency - defenceEfficiency;
+									if (localDelta > maxDelta)
+									{
+
+										maxDelta = localDelta;
+										attack = attackEfficiency;
+										defence = defenceEfficiency;
+										chosenId = targetId;
+									}
+								}
+								else
+								{
+									if (attackEfficiency > maxDelta)
+									{
+
+										maxDelta = attackEfficiency;
+										attack = attackEfficiency;
+										defence = defenceEfficiency;
+										chosenId = targetId;
+									}
+								}
+
 							}
 							catch { }
 						
 						}
-						if(maxDelta > 0)
-							attackerDamage += maxDelta;
+						attackerDamage += attack;
+						defenderDamage += defence;
+
+
+						unitTypeAttack(defender, defender.Units[chosenId].Unit.Type);
+						unitTypeAttack(attacker, frontUnit.Unit.Type);
+						log.Append(defender.Units[chosenId].Unit.Name).Append(" with ").Append(attack).Append(" attack efficiency and ").Append(defence).Append(" defence efficiency of enemy").AppendLine();
+							
 					}
 					else
 					{
+
+						log.Append("at random he chooses ");
 						//Choose at random
 						var targetId = random.Next(0, defender.Units.Length);
 						while(defender.Units[targetId].Count == 0)
@@ -161,7 +235,8 @@ namespace AA_WPG
 						try
 						{
 							float attackEfficiency = frontUnit.Unit.Effectiveness[units.units[defender.Units[targetId].Unit.Index]];
-							defender.Units[targetId].WasAttacked = true;
+
+							unitTypeAttack(defender, defender.Units[targetId].Unit.Type);
 							attackEfficiency *= attacker.Army.Weapons;
 							attackEfficiency *= attackerYearMod;
 							switch (defender.Units[targetId].Unit.Type)
@@ -177,6 +252,7 @@ namespace AA_WPG
 									break;
 							}
 							attackerDamage += attackEfficiency;
+							log.Append(defender.Units[targetId].Unit.Name).Append(" with ").Append(attackEfficiency).Append(" attack efficiency and ");
 							try
 							{
 								float defenceEfficiency = defender.Units[targetId].Unit.Effectiveness[units.units[frontUnit.Unit.Index]];
@@ -196,7 +272,10 @@ namespace AA_WPG
 										break;
 								}
 								defenderDamage += defenceEfficiency;
-								attacker.Units[j].WasAttacked = true;
+
+								unitTypeAttack(attacker, frontUnit.Unit.Type);
+								//attacker.Units[j].WasAttacked = true;
+								log.Append(defenceEfficiency).Append(" defence efficiency of enemy").AppendLine();
 							}
 							catch { }
 
@@ -205,13 +284,39 @@ namespace AA_WPG
 
 					}
 				}
+				log.Append(Environment.NewLine);
+
 			}
 			bool attackerDead = false;
 			bool defenderDead = false;
 			bool finishedDamageDistribution = false;
+
+
+
+			Func<Frontline, UnitType, bool> unitTypeAttacked = (front, type) => 
+			{
+				if (front == refAttacker)
+					switch (type)
+					{
+						case UnitType.Air: return damageAttackerAir;
+						case UnitType.Land: return damageAttackerLand;
+						case UnitType.Sea: return damageAttackerSea;
+					}
+				else
+					switch (type)
+					{
+						case UnitType.Air: return damageDefenderAir;
+						case UnitType.Land: return damageDefenderLand;
+						case UnitType.Sea: return damageDefenderSea;
+					}
+				return false;
+			
+			};
+
+
 			while (!finishedDamageDistribution)
 			{
-				var damageIndex = WeightedRandom.GetIndex(defender.Units.Length, x => { if(refDefender.Units[x].Count == 0 || !refDefender.Units[x].WasAttacked) return 0; return refAttacker.Army.Units[refDefender.Units[x].Unit.Index].Priority; }, random);
+				var damageIndex = WeightedRandom.GetIndex(defender.Units.Length, x => { if(refDefender.Units[x].Count == 0 || !unitTypeAttacked(refDefender, refDefender.Units[x].Unit.Type)) return 0; return refAttacker.Army.Units[refDefender.Units[x].Unit.Index].Priority; }, random);
 				if (damageIndex == -1)
 				{
 					//There is no one to attack, check if all dead
@@ -227,6 +332,7 @@ namespace AA_WPG
 						defenderDead = true;
 						//Attacker probably won, stop damage distribution
 						finishedDamageDistribution = true;
+						break;
 					}
 					else
 					{
@@ -237,22 +343,23 @@ namespace AA_WPG
 				if (defender.Units[damageIndex].Unit.HP > attackerDamage)
 				{
 					if (attacker == front1)
-						savedInitiative1 = (int)attackerDamage;
+						savedDamage1 = attackerDamage;
 					else
-						savedInitiative2 = (int)attackerDamage;
+						savedDamage2 = attackerDamage;
 					finishedDamageDistribution = true;
 				}
 				else
 				{
 					attackerDamage -= defender.Units[damageIndex].Unit.HP;
 					defender.Units[damageIndex].Count -= 1;
+					log.Append(defender.ID).Append(" unit ").Append(defender.Units[damageIndex].Unit.Name).Append(" destroyed").AppendLine();
 				}
 			}
 
 			finishedDamageDistribution = false;
 			while (!finishedDamageDistribution)
 			{
-				var damageIndex = WeightedRandom.GetIndex(attacker.Units.Length, x => { if (refAttacker.Units[x].Count == 0|| !refAttacker.Units[x].WasAttacked) return 0; return refDefender.Army.Units[refAttacker.Units[x].Unit.Index].Priority; }, random);
+				var damageIndex = WeightedRandom.GetIndex(attacker.Units.Length, x => { if (refAttacker.Units[x].Count == 0|| !unitTypeAttacked(refAttacker, refAttacker.Units[x].Unit.Type)) return 0; return refDefender.Army.Units[refAttacker.Units[x].Unit.Index].Priority; }, random);
 				if (damageIndex == -1)
 				{
 					//There is no one to attack, check if all dead
@@ -268,6 +375,7 @@ namespace AA_WPG
 						attackerDead = true;
 						//Attacker probably lost, stop damage distribution
 						finishedDamageDistribution = true;
+						break;
 					}
 					else
 					{
@@ -277,15 +385,17 @@ namespace AA_WPG
 				if (attacker.Units[damageIndex].Unit.HP > defenderDamage)
 				{
 					if (defender == front1)
-						savedInitiative1 = (int)defenderDamage;
+						savedDamage1 = defenderDamage;
 					else
-						savedInitiative2 = (int)defenderDamage;
+						savedDamage2 = defenderDamage;
 					finishedDamageDistribution = true;
 				}
 				else
 				{
 					defenderDamage -= attacker.Units[damageIndex].Unit.HP;
 					attacker.Units[damageIndex].Count -= 1;
+
+					log.Append(attacker.ID).Append(" unit ").Append(attacker.Units[damageIndex].Unit.Name).Append(" destroyed").AppendLine();
 				}
 			}
 

@@ -46,19 +46,19 @@ namespace AA_WPG
 				if (float.TryParse(variables[3] as string, out weapons))
 					army.Weapons = weapons;
 				float soldiers = 0;
-				if (float.TryParse(variables[1] as string, out soldiers))
+				if (float.TryParse(variables[5] as string, out soldiers))
 					army.Soldiers = soldiers;
 				float seamen = 0;
-				if (float.TryParse(variables[1] as string, out seamen))
+				if (float.TryParse(variables[7] as string, out seamen))
 					army.Seamen = seamen;
 				float pilots = 0;
-				if (float.TryParse(variables[1] as string, out pilots))
+				if (float.TryParse(variables[9] as string, out pilots))
 					army.Pilots = pilots;
 				float overallYear = 0;
 				for (int i = 0; i < years.Count / 2; i++)
 				{
-					float year = float.Parse(years[i] as string);
-					float percent = float.Parse(years[i + 1] as string);
+					float year = float.Parse(years[i*2] as string);
+					float percent = float.Parse(years[i*2 + 1] as string);
 					overallYear += year * percent;
 				}
 				army.Year = overallYear;
