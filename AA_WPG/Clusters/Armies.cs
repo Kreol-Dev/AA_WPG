@@ -37,10 +37,31 @@ namespace AA_WPG
 				var fronts = updater.GetSheetRange(armyTag as string, "A", 30, "Z", 40, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
 				var modifiers = updater.GetSheetRange(armyTag as string, "A", 42, "Z", 50, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
 				var variables = updater.GetSheetRange(armyTag as string, "A", 1, "Z", 1, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU")[0];
+				var years = updater.GetSheetRange(armyTag as string, "B", 2, "Z", 2, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU")[0];
 				army = new Army();
 				int initiative = 0;
 				if (int.TryParse(variables[1] as string, out initiative))
 					army.Initiative = initiative;
+				float weapons = 0;
+				if (float.TryParse(variables[3] as string, out weapons))
+					army.Weapons = weapons;
+				float soldiers = 0;
+				if (float.TryParse(variables[1] as string, out soldiers))
+					army.Soldiers = soldiers;
+				float seamen = 0;
+				if (float.TryParse(variables[1] as string, out seamen))
+					army.Seamen = seamen;
+				float pilots = 0;
+				if (float.TryParse(variables[1] as string, out pilots))
+					army.Pilots = pilots;
+				float overallYear = 0;
+				for (int i = 0; i < years.Count / 2; i++)
+				{
+					float year = float.Parse(years[i] as string);
+					float percent = float.Parse(years[i + 1] as string);
+					overallYear += year * percent;
+				}
+				army.Year = overallYear;
 				List<Unit> localUnits = new List<Unit>();
 				army.Units = localUnits;
 				foreach (var unit in units.units)
@@ -131,6 +152,11 @@ namespace AA_WPG
 		public List<Unit> Units;
 		public List<Frontline> Fronts;
 		public int Initiative;
+		public float Weapons;
+		public float Soldiers;
+		public float Seamen;
+		public float Pilots;
+		public float Year;
 		StringBuilder builder = new StringBuilder();
 		public override string ToString()
 		{

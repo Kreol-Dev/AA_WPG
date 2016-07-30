@@ -15,7 +15,7 @@ namespace AA_WPG
 			log.Clear();
 			var front1FullName = args[0].Split('.');
 			var front2FullName = args[1].Split('.');
-			int stepsCount = int.Parse(args[2] as string);
+			int stepsCount = int.Parse(args[2]);
 			string situationFilePath = args[3];
 
 			string armyTag1 = front1FullName[0];
@@ -23,7 +23,7 @@ namespace AA_WPG
 
 			string frontName1 = front1FullName[1];
 			string frontName2 = front2FullName[1];
-
+			float firstMod = float.Parse(args[4]);
 			var armies = Program.GetCluster<Armies>();
 			var army1 =armies.GetArmy(armyTag1);
 
@@ -81,6 +81,13 @@ namespace AA_WPG
 				attacker.Units[i].WasAttacked = false;
 			for (int i = 0; i < defender.Units.Length; i++)
 				defender.Units[i].WasAttacked = false;
+			float attackerYearMod = 1;
+			float defenderYearMod = 1;
+			if(attacker.Army.Year - defender.Army.Year < 0)
+				defenderYearMod = (defender.Army.Year - attacker.Army.Year) * units.TimeAheadModifier;
+			else
+				attackerYearMod = (attacker.Army.Year - defender.Army.Year) * units.TimeAheadModifier;
+			
 			for (int i = 0; i < attacker.Units.Length; i++)
 			{
 				var frontUnit = attacker.Units[i];
@@ -98,12 +105,40 @@ namespace AA_WPG
 							try
 							{
 								float attackEfficiency = frontUnit.Unit.Effectiveness[units.units[defender.Units[targetId].Unit.Index]];
+								attackEfficiency *= attacker.Army.Weapons;
+								attackEfficiency *= attackerYearMod;
+								switch (defender.Units[targetId].Unit.Type)
+								{
+									case UnitType.Air:
+										attackEfficiency *= attacker.Army.Pilots;
+										break;
+									case UnitType.Land:
+										attackEfficiency *= attacker.Army.Soldiers;
+										break;
+									case UnitType.Sea:
+										attackEfficiency *= attacker.Army.Seamen;
+										break;
+								}
 								defender.Units[targetId].WasAttacked = true;
 								float defenceEfficiency = 0;
 								try
 								{
 									defenceEfficiency = defender.Units[targetId].Unit.Effectiveness[units.units[frontUnit.Unit.Index]];
 									defenceEfficiency *= multiplier;
+									defenceEfficiency *= defender.Army.Weapons;
+									defenceEfficiency *= defenderYearMod;
+									switch (defender.Units[targetId].Unit.Type)
+									{
+										case UnitType.Air:
+											defenceEfficiency *= defender.Army.Pilots;
+											break;
+										case UnitType.Land:
+											defenceEfficiency *= defender.Army.Soldiers;
+											break;
+										case UnitType.Sea:
+											defenceEfficiency *= defender.Army.Seamen;
+											break;
+									}
 									attacker.Units[j].WasAttacked = true;
 								}
 								catch { }
@@ -127,11 +162,39 @@ namespace AA_WPG
 						{
 							float attackEfficiency = frontUnit.Unit.Effectiveness[units.units[defender.Units[targetId].Unit.Index]];
 							defender.Units[targetId].WasAttacked = true;
+							attackEfficiency *= attacker.Army.Weapons;
+							attackEfficiency *= attackerYearMod;
+							switch (defender.Units[targetId].Unit.Type)
+							{
+								case UnitType.Air:
+									attackEfficiency *= attacker.Army.Pilots;
+									break;
+								case UnitType.Land:
+									attackEfficiency *= attacker.Army.Soldiers;
+									break;
+								case UnitType.Sea:
+									attackEfficiency *= attacker.Army.Seamen;
+									break;
+							}
 							attackerDamage += attackEfficiency;
 							try
 							{
 								float defenceEfficiency = defender.Units[targetId].Unit.Effectiveness[units.units[frontUnit.Unit.Index]];
 								defenceEfficiency *= multiplier;
+								defenceEfficiency *= defender.Army.Weapons;
+								defenceEfficiency *= defenderYearMod;
+								switch (defender.Units[targetId].Unit.Type)
+								{
+									case UnitType.Air:
+										defenceEfficiency *= defender.Army.Pilots;
+										break;
+									case UnitType.Land:
+										defenceEfficiency *= defender.Army.Soldiers;
+										break;
+									case UnitType.Sea:
+										defenceEfficiency *= defender.Army.Seamen;
+										break;
+								}
 								defenderDamage += defenceEfficiency;
 								attacker.Units[j].WasAttacked = true;
 							}
