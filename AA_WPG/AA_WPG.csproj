@@ -91,6 +91,9 @@
     <Compile Include="Clusters\States.cs" />
     <Compile Include="Clusters\Armies.cs" />
     <Compile Include="Commands\LoadStates.cs" />
+    <Compile Include="Commands\LoadArmies.cs" />
+    <Compile Include="Commands\ProcessBattle.cs" />
+    <Compile Include="WeightedRandom.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

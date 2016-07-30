@@ -53,7 +53,9 @@ namespace AA_WPG
 
 		public IList<IList<Object>> GetSheetRange(string list, string fromCol, int fromRow, string toCol, int toRow, string sheetId)
 		{
-			var request = service.Spreadsheets.Values.Get(sheetId, String.Format("{0}!{1}{2}:{3}{4}", list, fromCol, fromRow, toCol, toRow));
+			var rangeStr = String.Format("{0}!{1}{2}:{3}{4}", list, fromCol, fromRow, toCol, toRow);
+			Console.WriteLine(rangeStr);
+			var request = service.Spreadsheets.Values.Get(sheetId, rangeStr);
 			var values = request.Execute();
 			return values.Values;
 		}

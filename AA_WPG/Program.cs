@@ -30,7 +30,7 @@ namespace AA_WPG
 	class Program
 	{
 
-		static GoogleDataUpdater upd = new GoogleDataUpdater();
+		public static GoogleDataUpdater upd = new GoogleDataUpdater();
 		static List<ConsoleCommand> commands;
 		static List<RemoteDataCluster> clustersList;
 		public static T GetCluster<T>() where T : RemoteDataCluster
