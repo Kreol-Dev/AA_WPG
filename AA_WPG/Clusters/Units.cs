@@ -11,8 +11,8 @@ namespace AA_WPG
 		public override void Init(GoogleDataUpdater updater)
 		{
 			//var count = int.Parse(updater.GetSheetRange("Units", "A", 1, "A", 1, "1YwwVn7NpUcGyNGOOHquT2_4FHLYxICE3C2YYLm8MeAw")[0][0] as string);
-			var unitsData = updater.GetSheetRange("Units", "A", 2, "AC", 32, "1YwwVn7NpUcGyNGOOHquT2_4FHLYxICE3C2YYLm8MeAw");
-			var years = updater.GetSheetRange("AdditionalData", "A", 1, "Z", 1, "1YwwVn7NpUcGyNGOOHquT2_4FHLYxICE3C2YYLm8MeAw")[0];
+			var unitsData = updater.GetSheetRange("Units", "A", 2, "AC", 32, Sheets.ArmySheetID);
+			var years = updater.GetSheetRange("AdditionalData", "A", 1, "Z", 1, Sheets.ArmySheetID)[0];
 			for (int i = 0; i < years.Count; i+=2)
 			{
 				levels.Add(int.Parse(years[i] as string));
@@ -41,7 +41,7 @@ namespace AA_WPG
 					}
 				}
 
-			var effectivenessData = updater.GetSheetRange("Effectiveness", "B", 2, "Z", 26, "1YwwVn7NpUcGyNGOOHquT2_4FHLYxICE3C2YYLm8MeAw");
+			var effectivenessData = updater.GetSheetRange("Effectiveness", "B", 2, "Z", 26, Sheets.ArmySheetID);
 			for (int i = 0; i < effectivenessData.Count; i++)
 			{
 				var row = effectivenessData[i];

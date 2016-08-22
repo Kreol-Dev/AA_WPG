@@ -32,12 +32,12 @@ namespace AA_WPG
 				return army;
 			else
 			{
-				var eff = updater.GetSheetRange(armyTag as string, "B", 4, "Z", 28, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
-				var addData = updater.GetSheetRange(armyTag as string, "AA", 4, "AC", 28, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
-				var fronts = updater.GetSheetRange(armyTag as string, "A", 30, "Z", 40, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
-				var modifiers = updater.GetSheetRange(armyTag as string, "A", 42, "Z", 50, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU");
-				var variables = updater.GetSheetRange(armyTag as string, "A", 1, "Z", 1, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU")[0];
-				var years = updater.GetSheetRange(armyTag as string, "B", 2, "Z", 2, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU")[0];
+				var eff = updater.GetSheetRange(armyTag as string, "B", 4, "Z", 28, Sheets.ArmiesSheetID);
+				var addData = updater.GetSheetRange(armyTag as string, "AA", 4, "AC", 28, Sheets.ArmiesSheetID);
+				var fronts = updater.GetSheetRange(armyTag as string, "A", 30, "Z", 40, Sheets.ArmiesSheetID);
+				var modifiers = updater.GetSheetRange(armyTag as string, "A", 42, "Z", 50, Sheets.ArmiesSheetID);
+				var variables = updater.GetSheetRange(armyTag as string, "A", 1, "Z", 1, Sheets.ArmiesSheetID)[0];
+				var years = updater.GetSheetRange(armyTag as string, "B", 2, "Z", 2, Sheets.ArmiesSheetID)[0];
 				army = new Army();
 				int initiative = 0;
 				if (int.TryParse(variables[1] as string, out initiative))

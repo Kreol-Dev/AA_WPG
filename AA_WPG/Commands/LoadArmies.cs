@@ -6,7 +6,7 @@ namespace AA_WPG
 		public override void Execute(string[] args)
 		{
 			var armies = Program.GetCluster<Armies>();
-			var armyTags = Program.upd.GetSheetRange("Armies", "A", 1, "Z", 1, "1qpiElAA2ytKQ_9HJRP7emvvBzupxNi8L78W9Q7r-gLU")[0];
+			var armyTags = Program.upd.GetSheetRange("Armies", "A", 1, "Z", 1, Sheets.ArmiesSheetID)[0];
 			foreach (var armyTag in armyTags)
 			{
 				var army = armies.GetArmy(armyTag as string);

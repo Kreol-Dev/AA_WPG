@@ -94,6 +94,7 @@
     <Compile Include="Commands\LoadArmies.cs" />
     <Compile Include="Commands\ProcessBattle.cs" />
     <Compile Include="WeightedRandom.cs" />
+    <Compile Include="Sheets.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
